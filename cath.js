@@ -22,8 +22,10 @@ request(url, function (error, response, body) {
       /**
        * 进行正则匹配  拿到价格
        */
-      const regexp = /(￥[0-9]*\.[0-9]*)/
+      const regexp = /(¥[0-9]*\.[0-9]*)/g
       let val =  $(mya[i]).text().match(regexp)//这里val为空   不知道为什么不能匹配  并且有的a链接中两个价格
+      console.log(val)
+      console.log($(mya[i]).text())
 
       /**
        *进行增加obj项目 
