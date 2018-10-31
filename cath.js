@@ -8,27 +8,27 @@ request(url, function (error, response, body) {
   const html = body;
   const $ = cheerio.load(html);
   
-  const mya = $('a');
+  const myA = $('a');//所有a链接
 
-  const ObjListA = myaList(mya);
-  const fliterNulll = fliterNull(ObjListA);
-  const priceA = fitlterPri(fliterNulll);
-  const sortPri = sortA(priceA)
-  const avgpri = avgPri(sortPri)
-  console.log(avgpri)
+  const ObjListA = findMyAList(myA);//a链接对应的a链接价格
+  const fliterNullL = fliterNull(ObjListA);//所有有价格的a链接
+  const priceA = fitlterPri(fliterNullL);//>100元的链接
+  const sortPri = sortA(priceA)//价格排序
+  const avgPri = findAvgPri(sortPri)//平均价格
+  console.log(avgPri)
 
 
   /**
    * 拿到不同的链接，已经链接的价格
    */
-  function myaList(mya){
-    const myaLength = mya.length
+  function findMyAList(myA){
+    const myALength = myA.length
     let myaListArr = []
-    for(let i=0;i<myaLength;i++){
+    for(let i=0;i<myALength;i++){
       const regexp = /(¥[0-9]*\.?[0-9]*)/g
-      let val =  $(mya[i]).text().match(regexp)
+      let val =  $(myA[i]).text().match(regexp)
       let _obj = {}
-      _obj[$(mya[i]).attr('href')] = val
+      _obj[$(myA[i]).attr('href')] = val
 
       myaListArr.push(_obj)
     }
@@ -39,16 +39,15 @@ request(url, function (error, response, body) {
    *过滤里面的为空的值
    */
   function fliterNull(list){
-    const listLength = list.length
     let _list = []
-    for(let i=0;i<listLength;i++){
-      for(item in list[i]){
-        if(list[i][item] != null){
-          _list.push(list[i])
+    list.map(i => {
+      for(item in i){
+        if(i[item] != null){
+          _list.push(i)
         }
       }
-    }
-    return _list
+    })
+    return _list;
   }
 
   /**
@@ -56,18 +55,17 @@ request(url, function (error, response, body) {
    * 根据过滤出价格>100的产品
    */
   function fitlterPri(list){
-    const myaLength = list.length
     let _list = []
-    for(let i=0;i<myaLength;i++){
-      for(item in list[i]){
-        for(let ind=0;ind<list[i][item].length;ind++){
-        let _a = list[i][item][ind].match(/([0-9]+\.?[0-9]*)/)
-          if(_a[0]-0>100){
-            _list.push(_a[0])
+    list.map(i => {
+      for(item in i){
+        i[item].map(v => {
+          let a = v.match(/([0-9]+\.?[0-9]*)/);
+          if(+a[0]>100){
+            _list.push(+a[0]);
           }
-        }
+        })
       }
-    }
+    })
     return _list
   }
 
@@ -76,25 +74,22 @@ request(url, function (error, response, body) {
    *进行价格排序
    */
   function sortA(list){
-    let _list=[];
-    _list = list.sort();
-    return _list
+    list.sort(function(a,b){
+      return a-b;
+    });
+    return list;
   }
 
   /**
    *
    *求价格的平均
    */
-  function avgPri(list){
+  function findAvgPri(list){
     const myaLength = list.length
-    // console.log(list)
     let sum = 0;
-    let avg = 0;
-    for(let i=0;i<myaLength;i++){
-      let num = list[i]-0
-      sum = sum + num
-    }
-    avg = sum/myaLength
-    return avg
+    list.map(v => {
+      sum += v;
+    })
+    return avg = sum/myaLength;
   }
 });
